@@ -215,7 +215,7 @@ class CRM_Financial_BAO_ExportFormat_IIF extends CRM_Financial_BAO_ExportFormat 
             $contributionId = $financialTrxn['entity_id'];
             $batchItems = civicrm_api3('Contribution', 'get', [
               'sequential' => 1,
-              'return' => ["contribution_campaign_id"],
+              'return' => ["contribution_campaign_id", "contact_id"],
               'id' => $contributionId,
             ]);
             if (!empty($batchItems['values']) && !empty($batchItems['values'][0]['contribution_campaign_id'])) {
@@ -229,6 +229,16 @@ class CRM_Financial_BAO_ExportFormat_IIF extends CRM_Financial_BAO_ExportFormat 
                 $campaign_name = $campaign['values'][0]['title'];
               }
             }
+
+            if(!empty($batchItems['values']) && !empty($batchItems['values'][0]['contact_id'])) {
+              $contact = civicrm_api3('Contact', 'get', [
+                'sequential' => 1,
+                'id' => $batchItems['values'][0]['contact_id'],
+              ]);
+              if (!empty($contact['values'])) {
+                $contact_name = $contact['values'][0]['display_name'] ? $contact['values'][0]['display_name'] : $contact['values'][0]['email'];
+              }
+            }
           }
         }
 
@@ -239,7 +249,7 @@ class CRM_Financial_BAO_ExportFormat_IIF extends CRM_Financial_BAO_ExportFormat 
             'trxn_id' => $this->format($dao->trxn_id),
             'account_name' => $this->format($dao->to_account_name),
             'amount' => $this->format($dao->debit_total_amount, 'money'),
-            'contact_name' => $this->format($dao->contact_to_name),
+            'contact_name' => $this->format($contact_name),
             'payment_instrument' => $this->format($dao->payment_instrument),
             'check_number' => $this->format($dao->check_number),
             'campaign' => $campaign_name,
