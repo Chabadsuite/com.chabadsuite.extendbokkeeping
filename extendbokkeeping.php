@@ -160,7 +160,7 @@ function extendbokkeeping_civicrm_batchItems(&$results, &$items) {
       $batchItems = civicrm_api3('Contribution', 'get', [
         'sequential' => 1,
         'return' => ["contribution_campaign_id"],
-        'id' => $transactions['Invoice No'],
+        'invoice_number' => $transactions['Invoice No'],
         'contact_id' => $transactions['Contact ID'],
       ]);
       if (!empty($batchItems['values']) && !empty($batchItems['values'][0]['contribution_campaign_id'])) {
