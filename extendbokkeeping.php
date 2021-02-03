@@ -150,31 +150,3 @@ function extendbokkeeping_civicrm_navigationMenu(&$menu) {
   ));
   _extendbokkeeping_civix_navigationMenu($menu);
 } // */
-
-/**
- * Implements hook_civicrm_batchItems().
- */
-function extendbokkeeping_civicrm_batchItems(&$results, &$items) {
-  if (!empty($items)) {
-    foreach ($items as $key => $transactions) {
-      $batchItems = civicrm_api3('Contribution', 'get', [
-        'sequential' => 1,
-        'return' => ["contribution_campaign_id"],
-        'id' => $transactions['Financial Trxn ID/Internal ID'],
-        'contact_id' => $transactions['Contact ID'],
-      ]);
-      if (!empty($batchItems['values']) && !empty($batchItems['values'][0]['contribution_campaign_id'])) {
-        $campaign = civicrm_api3('Campaign', 'get', [
-          'sequential' => 1,
-          'return' => ["title"],
-          'id' => $batchItems['values'][0]['contribution_campaign_id'],
-        ]);
-
-        if (!empty($campaign['values']) && !empty($campaign['values'][0]['title'])) {
-          $campaign_name = $campaign['values'][0]['title'];
-          $items[$key]['campaign'] = $campaign_name;
-        }
-      }
-    }
-  }
-}
